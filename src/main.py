@@ -1,7 +1,10 @@
-import unicornhathd
 import time
 from datetime import datetime
 from pytz import timezone
+try:
+    import unicornhath
+except ImportError:
+    None
 
 class Size:
     def __init__(self, width, height):
@@ -121,6 +124,22 @@ class ThreeBySeven:
             [1, 1, 1,  1, 0, 1,  1, 0, 1,  1, 1, 1,  0, 0, 1,  0, 0, 1,  0, 0, 1],
         ]
 
+class DummyHAT:
+    def __init__(self):
+        print('init: {}'.format(self))
+        
+    def set_pixel(self, x, y, r, g, b):
+        print("set_pixel[{},{}]: ({}, {}, {})".format(x, y, r, g, b))
+        
+    def show(self):
+        print('show')
+        
+    def off(self):
+        print('self')
+    
+    def brightness(self, value):
+        print("set_brightness({})".format(value))
+
 def make_grid(source, generator, value):
     columns = 4
     accumulator = source
@@ -132,26 +151,33 @@ def make_grid(source, generator, value):
         accumulator = accumulator.appending(child, Point(x, y))
     return accumulator
 
-def tick(source, generator):
+def tick(source, generator, hat):
     utc_time = datetime.now(timezone('UTC'))
     local_timezone = timezone('Europe/London')
     formatted = utc_time.astimezone(local_timezone).strftime("%H%M%S")
     currentGrid = make_grid(source, generator, formatted)
+    print("tick: " + formatted)
     for e in currentGrid.pixels:
-        unicornhathd.set_pixel(e.point.x, e.point.y, e.color.r, e.color.g, e.color.b)
-    unicornhathd.show()
+        hat.set_pixel(e.point.x, e.point.y, e.color.r, e.color.g, e.color.b)
+    hat.show()
 
 master = Grid.same(Size(16, 16), Color.black())
 #generator = ThreeByFive()
 generator = ThreeBySeven()
-
-unicornhathd.brightness(0.75)
+    
+try:
+    hat = unicornhathd
+except:
+    hat = DummyHAT()
+    
+    
+hat.brightness(0.75)
 
 try:
     while True:
-        tick(master, generator)
+        tick(master, generator, hat)
         time.sleep(1)
         
 except KeyboardInterrupt:
-    unicornhathd.off()
+    hat.off()
     exit(0)
