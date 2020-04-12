@@ -2,7 +2,7 @@ import time
 from datetime import datetime
 from pytz import timezone
 try:
-    import unicornhath
+    import unicornhathd
 except ImportError:
     None
 
