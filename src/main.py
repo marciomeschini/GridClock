@@ -156,7 +156,6 @@ def tick(source, generator, hat):
     local_timezone = timezone('Europe/London')
     formatted = utc_time.astimezone(local_timezone).strftime("%H%M%S")
     currentGrid = make_grid(source, generator, formatted)
-    print("tick: " + formatted)
     for e in currentGrid.pixels:
         hat.set_pixel(e.point.x, e.point.y, e.color.r, e.color.g, e.color.b)
     hat.show()
